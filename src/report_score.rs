@@ -19,7 +19,6 @@ fn main() -> Result<(), anyhow::Error> {
     // let mut old_wins = 50;
     let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
     let mut game: Game = Game::Connect4(&mut gamestruct);
-    //let mut player_library = PlayerLibrary::new();
     let game_static = game.get_game_static();
     loop {
 
