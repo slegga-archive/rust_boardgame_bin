@@ -73,6 +73,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
+name = "boardgame_binaries"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "boardgame_game",
+ "boardgame_player",
+ "env_logger",
+ "inline_colorization",
+ "log",
+ "rand",
+ "time",
+]
+
+[[package]]
 name = "boardgame_game"
 version = "0.1.0"
 dependencies = [
@@ -200,22 +214,6 @@ name = "log"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
-
-[[package]]
-name = "logic-gate-network"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "boardgame_game",
- "boardgame_player",
- "env_logger",
- "fs-err",
- "inline_colorization",
- "log",
- "rand",
- "thiserror",
- "time",
-]
 
 [[package]]
 name = "memchr"

@@ -11,6 +11,7 @@ Akkurat nå tenker jeg siste forslag er det beste.
 
 TODO
 ====
+[ ] Fjern new metodene. Bruk default istedenfor.
 [ ] Lag et statisikk program for å finne snitt avvik på score, gjennomsnitt evaluering, fordeling av gatetyper, statistikk for armadresser i førstelaget osv.
 [ ] begrenset random evolve script: utfra statistikken finn dårligste gate og rull den og bakendforliggende gates på nytt (inkl første lag med adresser)
 [*] rust_boardgame_player/src/player/plgnn_diamond_tree_search.rs: select_leaf:

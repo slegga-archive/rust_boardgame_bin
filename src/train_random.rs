@@ -5,17 +5,17 @@
 //mod player;
 mod game_utils;
 use boardgame_game::game::game::*;
-use boardgame_player::player::brain::lg_trunc::lg_trunc::generate_random_brain;
-use boardgame_player::player::brain::lg_trunc::lg_trunc::get_default_cell;
-use boardgame_player::player::brain::lg_trunc::lg_trunc::Brain;
-use boardgame_player::player::player::*;
-use boardgame_player::player::plgnn_trunc::plgnn_trunc::PlayerNeuralNetwork;
-use boardgame_player::player::brain::brain::NO_LAYERS;
+use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
+//use boardgame_player::player::player::*;
+//use boardgame_player::player::brain::brain::NO_LAYERS;
 use env_logger;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
 use crate::game_utils::game_utils::*;
 use boardgame_player::player::brain::brain::LogicGatesError;
+use boardgame_player::player::brain::lg_diamond::lg_diamond::BrainDiamond;
+use boardgame_player::player::brain::lg_diamond::lg_diamond::generate_random_brain;
+use boardgame_player::player::player::Agentish;
 
 /// Test like this:
 ///
@@ -29,12 +29,11 @@ fn main() -> Result<(), anyhow::Error> {
     let mut old_wins = 40.0;
     let game_static = game.get_game_static();
     debug!("{}", game);
-    let layer = get_default_cell();
-    let mut brain_a = Brain {
-        game_name: game_static.name.clone(),
-        filepath: "".to_string(),
-        layers: [layer; NO_LAYERS],
-    };
+    let mut brain_a = BrainDiamond {game_name: game_static.name.clone(),..BrainDiamond::default()};// {
+
+      //  filepath: "".to_string(),
+      //  layers: [layer; NO_LAYERS],
+    //};
     match brain_a.from_file() {
         Ok(_value) => (),
         Err(e) => match e {
@@ -55,11 +54,14 @@ fn main() -> Result<(), anyhow::Error> {
                 .iter()
                 .position(|x| x.eq(&active_player) == true);
     */
-    let mut player_a = PlayerNeuralNetwork {
+    let mut player_a = PlayerNNDiamond::default(); /*{
         name: "from_disk".to_string(),
         is_loaded: true,
         brain: brain_a,
-    };
+        me_color: "Red".to_string(),
+        opponent_color: "Yellow".to_string(),
+    };*/
+    player_a.get_ready(&game_static, "Red")?;
     warn!("Start");
     loop {
         // let mut player_library = PlayerLibrary::new();
@@ -68,11 +70,14 @@ fn main() -> Result<(), anyhow::Error> {
         let name_b = Alphanumeric.sample_string(&mut rand::thread_rng(), 8);
         debug!("Ny utfordrer: {}", name_b);
 
-        let player_b = PlayerNeuralNetwork {
+        let mut player_b = PlayerNNDiamond::default();
+        player_b.get_ready(&game_static, "Yellow")?;
+
+         /*{
             name: name_b,
             is_loaded: true,
             brain: generate_random_brain(&game_static),
-        };
+        };*/
         game.reset();
         //    todo!("Lag while under til en funksjon som tar player_a og player_b som innputt. Returnerer &str 'A' hvis 'A' vant og 'B' hvis B vant");
         let winner = run_match(&mut game, &player_a, &player_b);

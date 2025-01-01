@@ -8,7 +8,6 @@ rust_boardgame_bin -  binaries
 rust_boardgame_player - player
 rust_boardgame_game - game
 
-
 Disse Rust repo er for å forske ut logisk port nettverk på GGP spill.
 
 
@@ -27,3 +26,7 @@ Den som ikke kan gjøre et trekk, taper.
 
 Neste få til tilfeldig trening. Dvs generere opp en tilfeldig hjerne og la den spille mot den gjeldende hjernen.
 Hvis utfordrer vinner bytt ut gammel hjerne med ny.
+
+Connect4
+========
+Fire på rad. AI virker ikke så veldig bra per desember 2024.

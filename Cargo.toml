@@ -1,5 +1,5 @@
 [package]
-name = "logic-gate-network"
+name = "boardgame_binaries"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,11 +8,9 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 env_logger = "0.11.6"
-fs-err = "3.0.0"
 inline_colorization = "0.1.6"
 log = "0.4.22"
 rand = "0.8.5"
-thiserror = "2.0.9"
 time = "0.3.37"
 boardgame_game = { version = "0.1.0", path = "../rust_boardgame_game/" }
 boardgame_player = { version = "0.1.0", path = "../rust_boardgame_player/" }

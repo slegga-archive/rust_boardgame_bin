@@ -10,6 +10,7 @@ use crate::game_utils::game_utils::*;
 use boardgame_game::game::connect4::connect4::Connect4;
 use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 use boardgame_player::player::human::human::PlayerHuman;
+use boardgame_player::player::player::Agentish;
 
 //use boardgame_player::player::plgnn_diamond_tree_search;
 //use boardgame_player::player::player::PlayerNNDiamondTS;
@@ -22,7 +23,7 @@ use std::collections::HashMap;
 /// This file is master of linking player and game.
 
 
-fn main() {
+fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();
     //let mut gamestruct = crate::game::connect4::connect4::Connect4::default();
@@ -36,7 +37,8 @@ fn main() {
 
     let game_static = game.get_game_static();
     let player_types = HashMap::from([("Red", "PlayerMC"), ("Yellow", "PlayerHuman")]);
-    let player_a = PlayerNNDiamondTS::new(&game_static, "Red");
+    let mut player_a = PlayerNNDiamondTS::default();
+    player_a.get_ready(&game_static, "Red")?;
 
     let player_b: PlayerHuman = PlayerHuman {
         name: "Human".to_string(),
@@ -62,4 +64,6 @@ fn main() {
         "Game ended. The winner is {}! The winners name is {}",
         winner, player_name
     );
+    Ok(())
+
 }
