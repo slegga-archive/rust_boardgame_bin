@@ -11,6 +11,9 @@ Akkurat nå tenker jeg siste forslag er det beste.
 
 TODO
 ====
+[ ] Sørg for at run_match velger farge ved å angi farge ved get_ready(gamestatic,color  );
+[ ] Sjekk at PlayerDiamond tar hensyn til farge.
+[ ] Report_score må kunne få satt lavere sec_to_think verdi. 15 sec blir altfor lenge.
 [ ] Connect2 test spill for å teste playere
 [ ] Lag PlayerRandomLookahead som sjekker alle moves og ser om et av dem vinner.
 [*] Fjern new metodene. Bruk default istedenfor.
