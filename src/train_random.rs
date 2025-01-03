@@ -8,14 +8,13 @@ use boardgame_game::game::game::*;
 use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
 //use boardgame_player::player::player::*;
 //use boardgame_player::player::brain::brain::NO_LAYERS;
-use env_logger;
+use crate::game_utils::*;
+use boardgame_player::player::brain::brain::LogicGatesError;
+use boardgame_player::player::brain::lg_diamond::lg_diamond::generate_random_brain;
+use boardgame_player::player::brain::lg_diamond::lg_diamond::BrainDiamond;
+use boardgame_player::player::player::Agentish;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
-use crate::game_utils::game_utils::*;
-use boardgame_player::player::brain::brain::LogicGatesError;
-use boardgame_player::player::brain::lg_diamond::lg_diamond::BrainDiamond;
-use boardgame_player::player::brain::lg_diamond::lg_diamond::generate_random_brain;
-use boardgame_player::player::player::Agentish;
 
 /// Test like this:
 ///
@@ -29,10 +28,13 @@ fn main() -> Result<(), anyhow::Error> {
     let mut old_wins = 40.0;
     let game_static = game.get_game_static();
     debug!("{}", game);
-    let mut brain_a = BrainDiamond {game_name: game_static.name.clone(),..BrainDiamond::default()};// {
+    let mut brain_a = BrainDiamond {
+        game_name: game_static.name.clone(),
+        ..BrainDiamond::default()
+    }; // {
 
-      //  filepath: "".to_string(),
-      //  layers: [layer; NO_LAYERS],
+    //  filepath: "".to_string(),
+    //  layers: [layer; NO_LAYERS],
     //};
     match brain_a.from_file() {
         Ok(_value) => (),
@@ -42,7 +44,6 @@ fn main() -> Result<(), anyhow::Error> {
                     warn!("File not found loading brain. Generate a new one");
                     brain_a = generate_random_brain(&game_static);
                     brain_a.save_to_file()?;
-                    ()
                 };
             }
             other_error => panic!("Problem creating the file: {other_error:?}"),
@@ -55,12 +56,12 @@ fn main() -> Result<(), anyhow::Error> {
                 .position(|x| x.eq(&active_player) == true);
     */
     let mut player_a = PlayerNNDiamond::default(); /*{
-        name: "from_disk".to_string(),
-        is_loaded: true,
-        brain: brain_a,
-        me_color: "Red".to_string(),
-        opponent_color: "Yellow".to_string(),
-    };*/
+                                                       name: "from_disk".to_string(),
+                                                       is_loaded: true,
+                                                       brain: brain_a,
+                                                       me_color: "Red".to_string(),
+                                                       opponent_color: "Yellow".to_string(),
+                                                   };*/
     player_a.get_ready(&game_static, "Red")?;
     warn!("Start");
     loop {
@@ -73,7 +74,7 @@ fn main() -> Result<(), anyhow::Error> {
         let mut player_b = PlayerNNDiamond::default();
         player_b.get_ready(&game_static, "Yellow")?;
 
-         /*{
+        /*{
             name: name_b,
             is_loaded: true,
             brain: generate_random_brain(&game_static),

@@ -4,13 +4,12 @@
 //mod player;
 mod game_utils;
 
+use crate::game_utils::*;
 use boardgame_game::game::game::*;
 use boardgame_player::player::player::*;
 use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
-use env_logger;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
-use crate::game_utils::game_utils::*;
 
 /// Test like this:
 /// cargo run --bin train_random
@@ -70,7 +69,6 @@ fn main() -> Result<(), anyhow::Error> {
                 break; // new player did not played equal or win against old
             }
 
-
             //new last
             let winner = run_match(&mut game, &player_a, &player_b);
             game.reset();
@@ -98,7 +96,10 @@ fn main() -> Result<(), anyhow::Error> {
             }
             old_wins = new_old_wins;
             if let Err(e) = player_b.brain.save_to_file() {
-                panic!("Error saving to file: '{}'  {:?} ", player_b.brain.filepath, e);
+                panic!(
+                    "Error saving to file: '{}'  {:?} ",
+                    player_b.brain.filepath, e
+                );
             }
             warn!("NEW KING {} Score {:.1} ()", player_b.get_name(), old_wins,);
         }

@@ -5,16 +5,15 @@
 //! use crate::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 
 mod game_utils;
-use boardgame_game::game::game::*;
-use crate::game_utils::game_utils::*;
+use crate::game_utils::*;
 use boardgame_game::game::connect4::connect4::Connect4;
-use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use boardgame_game::game::game::*;
 use boardgame_player::player::human::human::PlayerHuman;
 use boardgame_player::player::player::Agentish;
+use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 
 //use boardgame_player::player::plgnn_diamond_tree_search;
 //use boardgame_player::player::player::PlayerNNDiamondTS;
-
 
 use log::debug;
 use std::collections::HashMap;
@@ -22,13 +21,12 @@ use std::collections::HashMap;
 /// To run a match RUST_LOG=debug cargo run --bin game_match
 /// This file is master of linking player and game.
 
-
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();
     //let mut gamestruct = crate::game::connect4::connect4::Connect4::default();
     //let game: Game = Game::Connect4(&mut gamestruct); // Combined::InnerOne(InnerOne);
-                                                          // let player_library = PlayerLibrary::new();
+    // let player_library = PlayerLibrary::new();
     let mut game = Connect4::default();
     println!(
         "La oss spille {}. Jeg starter ...",
@@ -65,5 +63,4 @@ fn main() -> Result<(), anyhow::Error> {
         winner, player_name
     );
     Ok(())
-
 }

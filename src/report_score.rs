@@ -6,10 +6,9 @@ mod game_utils;
 use boardgame_game::game::game::*;
 //use boardgame_player::player::player::*;
 //use boardgame_player::player::plgnn_diamond_tree_search::*;
-use env_logger;
-use crate::game_utils::game_utils::*;
-use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use crate::game_utils::*;
 use boardgame_player::player::player::Agentish;
+use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 
 /// Test like this:
 /// cargo run --bin train_random
@@ -22,7 +21,6 @@ fn main() -> Result<(), anyhow::Error> {
     let mut game: Game = Game::Connect4(&mut gamestruct);
     let game_static = game.get_game_static();
     loop {
-
         let mut player_a = PlayerNNDiamondTS::default();
         player_a.get_ready(&game_static, "Red")?;
 
@@ -30,6 +28,5 @@ fn main() -> Result<(), anyhow::Error> {
         let wins = mass_run_match_with_random_player(&mut game, &player_a, 10);
 
         println!("Vinner % {:.1}", wins);
-
     }
 }

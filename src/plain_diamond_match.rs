@@ -1,16 +1,16 @@
 //! This crate is handling GGP for rust.
 
-mod game_utils ;
+mod game_utils;
 //mod player;
 //use crate::game_utils::run_match;
 use boardgame_game::game::game::*;
 //use boardgame_player::player::player::*;
 use boardgame_player::player::human::human::PlayerHuman;
 //use crate::player::human::*;
-use boardgame_player::player::plgnn_diamond::*;
+use crate::game_utils::*;
 use crate::plgnn_diamond::PlayerNNDiamond;
 use boardgame_game::game::game::Game;
-use crate::game_utils::game_utils::*;
+use boardgame_player::player::plgnn_diamond::*;
 //use crate::player::monte_carlo::*;
 
 //use crate::Game;
@@ -25,7 +25,7 @@ fn main() {
     env_logger::init();
     let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
     let game: Game = Game::Connect4(&mut gamestruct); // Combined::InnerOne(InnerOne);
-                                                          // let player_library = PlayerLibrary::new();
+                                                      // let player_library = PlayerLibrary::new();
     println!(
         "La oss spille {}. Jeg starter ...",
         game.get_game_static().name
