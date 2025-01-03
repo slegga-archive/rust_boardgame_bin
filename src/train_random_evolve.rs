@@ -13,7 +13,6 @@ use rand::distributions::{Alphanumeric, DistString};
 
 /// Test like this:
 /// cargo run --bin train_random
-
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();

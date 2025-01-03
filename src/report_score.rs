@@ -12,7 +12,6 @@ use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_sear
 
 /// Test like this:
 /// cargo run --bin train_random
-
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();

@@ -19,7 +19,6 @@ use rand::distributions::{Alphanumeric, DistString};
 /// Test like this:
 ///
 /// cargo run --bin train_random
-
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();

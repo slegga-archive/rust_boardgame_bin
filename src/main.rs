@@ -20,7 +20,6 @@ use std::collections::HashMap;
 
 /// To run a match RUST_LOG=debug cargo run --bin game_match
 /// This file is master of linking player and game.
-
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();
