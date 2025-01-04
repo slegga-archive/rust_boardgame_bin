@@ -4,7 +4,7 @@
 //mod game;
 //mod player;
 mod game_utils;
-use boardgame_game::game::game::*;
+use boardgame_game::game::*;
 use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
 //use boardgame_player::player::player::*;
 //use boardgame_player::player::brain::brain::NO_LAYERS;
@@ -21,7 +21,7 @@ use rand::distributions::{Alphanumeric, DistString};
 /// cargo run --bin train_random
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
-    let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
+    let mut gamestruct = boardgame_game::game::connect4::Connect4::default();
     let mut game: Game = Game::Connect4(&mut gamestruct); // Combined::InnerOne(InnerOne);
     env_logger::init();
     let mut old_wins = 40.0;

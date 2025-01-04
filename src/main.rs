@@ -6,8 +6,8 @@
 
 mod game_utils;
 use crate::game_utils::*;
-use boardgame_game::game::connect4::connect4::Connect4;
-use boardgame_game::game::game::*;
+use boardgame_game::game::connect4::Connect4;
+use boardgame_game::game::*;
 use boardgame_player::player::human::human::PlayerHuman;
 use boardgame_player::player::player::Agentish;
 use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;

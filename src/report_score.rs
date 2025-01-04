@@ -3,7 +3,7 @@
 //! cargo run --bin report_score
 
 mod game_utils;
-use boardgame_game::game::game::*;
+use boardgame_game::game::*;
 //use boardgame_player::player::player::*;
 //use boardgame_player::player::plgnn_diamond_tree_search::*;
 use crate::game_utils::*;
@@ -16,7 +16,7 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();
     // let mut old_wins = 50;
-    let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
+    let mut gamestruct = boardgame_game::game::connect4::Connect4::default();
     let mut game: Game = Game::Connect4(&mut gamestruct);
     let game_static = game.get_game_static();
     loop {

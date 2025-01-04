@@ -5,7 +5,7 @@
 mod game_utils;
 
 use crate::game_utils::*;
-use boardgame_game::game::game::*;
+use boardgame_game::game::*;
 use boardgame_player::player::player::*;
 use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
 use log::{debug, info, warn};
@@ -19,7 +19,7 @@ fn main() -> Result<(), anyhow::Error> {
     let mut old_wins: f32 = 0.0;
 
     // Start from file
-    let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
+    let mut gamestruct = boardgame_game::game::connect4::Connect4::default();
     let mut game: Game = Game::Connect4(&mut gamestruct);
     loop {
         game.reset();

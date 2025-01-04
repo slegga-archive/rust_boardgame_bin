@@ -3,13 +3,13 @@
 mod game_utils;
 //mod player;
 //use crate::game_utils::run_match;
-use boardgame_game::game::game::*;
+use boardgame_game::game::*;
 //use boardgame_player::player::player::*;
 use boardgame_player::player::human::human::PlayerHuman;
 //use crate::player::human::*;
 use crate::game_utils::*;
 use crate::plgnn_diamond::PlayerNNDiamond;
-use boardgame_game::game::game::Game;
+use boardgame_game::game::Game;
 use boardgame_player::player::plgnn_diamond::*;
 //use crate::player::monte_carlo::*;
 
@@ -22,7 +22,7 @@ use std::collections::HashMap;
 fn main() {
     println!("Started");
     env_logger::init();
-    let mut gamestruct = boardgame_game::game::connect4::connect4::Connect4::default();
+    let mut gamestruct = boardgame_game::game::connect4::Connect4::default();
     let game: Game = Game::Connect4(&mut gamestruct); // Combined::InnerOne(InnerOne);
                                                       // let player_library = PlayerLibrary::new();
     println!(

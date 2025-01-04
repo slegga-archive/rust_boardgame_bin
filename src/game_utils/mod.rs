@@ -1,4 +1,4 @@
-use boardgame_game::game::game::Playable;
+use boardgame_game::game::Playable;
 use log::debug;
 /// This to not have to mark players with game tags. Players should
 /// have no info about the game.
