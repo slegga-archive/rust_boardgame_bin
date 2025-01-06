@@ -6,8 +6,9 @@ mod game_utils;
 
 use crate::game_utils::*;
 use boardgame_game::game::*;
-use boardgame_player::player::player::*;
-use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
+use boardgame_player::player::plgnn_diamond::PlayerNNDiamond;
+//use boardgame_player::player::*;
+use boardgame_player::player::Agentish;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
 

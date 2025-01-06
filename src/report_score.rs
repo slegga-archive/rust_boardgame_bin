@@ -3,12 +3,10 @@
 //! cargo run --bin report_score
 
 mod game_utils;
-use boardgame_game::game::*;
-//use boardgame_player::player::player::*;
-//use boardgame_player::player::plgnn_diamond_tree_search::*;
 use crate::game_utils::*;
-use boardgame_player::player::player::Agentish;
-use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use boardgame_game::game::*;
+use boardgame_player::player::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use boardgame_player::player::Agentish;
 
 /// Test like this:
 /// cargo run --bin train_random

@@ -8,9 +8,9 @@ mod game_utils;
 use crate::game_utils::*;
 use boardgame_game::game::connect4::Connect4;
 use boardgame_game::game::*;
-use boardgame_player::player::human::human::PlayerHuman;
-use boardgame_player::player::player::Agentish;
-use boardgame_player::player::plgnn_diamond_tree_search::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use boardgame_player::player::human::PlayerHuman;
+use boardgame_player::player::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+use boardgame_player::player::Agentish;
 
 //use boardgame_player::player::plgnn_diamond_tree_search;
 //use boardgame_player::player::player::PlayerNNDiamondTS;

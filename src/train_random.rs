@@ -5,14 +5,14 @@
 //mod player;
 mod game_utils;
 use boardgame_game::game::*;
-use boardgame_player::player::plgnn_diamond::plgnn_diamond::PlayerNNDiamond;
+use boardgame_player::player::plgnn_diamond::PlayerNNDiamond;
 //use boardgame_player::player::player::*;
 //use boardgame_player::player::brain::brain::NO_LAYERS;
 use crate::game_utils::*;
-use boardgame_player::player::brain::brain::LogicGatesError;
-use boardgame_player::player::brain::lg_diamond::lg_diamond::generate_random_brain;
-use boardgame_player::player::brain::lg_diamond::lg_diamond::BrainDiamond;
-use boardgame_player::player::player::Agentish;
+use boardgame_player::player::brain::lg_diamond::generate_random_brain;
+use boardgame_player::player::brain::lg_diamond::BrainDiamond;
+use boardgame_player::player::brain::LogicGatesError;
+use boardgame_player::player::Agentish;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
 

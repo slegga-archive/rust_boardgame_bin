@@ -11,6 +11,7 @@ Akkurat nå tenker jeg siste forslag er det beste.
 
 TODO
 ====
+[ ] Kjør: "cargo clippy" en gang til i hvert av repoene i denne rekkefølgen: game, player ,bin
 [ ] Sørg for at run_match velger farge ved å angi farge ved get_ready(gamestatic,color  );
 [ ] Sjekk at PlayerDiamond tar hensyn til farge.
 [ ] Report_score må kunne få satt lavere sec_to_think verdi. 15 sec blir altfor lenge.

@@ -4,8 +4,8 @@ use log::debug;
 /// have no info about the game.
 use std::fmt::Display;
 
-use boardgame_player::player::player::Agentish;
-use boardgame_player::player::random::random::PlayerRandom;
+use boardgame_player::player::random::PlayerRandom;
+use boardgame_player::player::Agentish;
 pub fn run_match<T: Playable + Display>(
     game: &mut T,
     player_a: &impl Agentish,

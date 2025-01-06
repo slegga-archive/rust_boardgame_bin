@@ -1,19 +1,11 @@
 //! This crate is handling GGP for rust.
 
 mod game_utils;
-//mod player;
-//use crate::game_utils::run_match;
-use boardgame_game::game::*;
-//use boardgame_player::player::player::*;
-use boardgame_player::player::human::human::PlayerHuman;
-//use crate::player::human::*;
 use crate::game_utils::*;
-use crate::plgnn_diamond::PlayerNNDiamond;
 use boardgame_game::game::Game;
+use boardgame_game::game::*;
+use boardgame_player::player::human::PlayerHuman;
 use boardgame_player::player::plgnn_diamond::*;
-//use crate::player::monte_carlo::*;
-
-//use crate::Game;
 use log::debug;
 use std::collections::HashMap;
 
