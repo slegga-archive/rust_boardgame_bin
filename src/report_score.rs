@@ -17,9 +17,10 @@ fn main() -> Result<(), anyhow::Error> {
     let mut gamestruct = boardgame_game::game::connect4::Connect4::default();
     let mut game: Game = Game::Connect4(&mut gamestruct);
     let game_static = game.get_game_static();
+    let start_player = game_static.players[0].as_str();
     loop {
         let mut player_a = PlayerNNDiamondTS::default();
-        player_a.get_ready(&game_static, "Red")?;
+        player_a.get_ready(&game_static, start_player)?;
 
         println!("Start mass_run");
         let wins = mass_run_match_with_random_player(&mut game, &player_a, 10);

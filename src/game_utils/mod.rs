@@ -80,20 +80,26 @@ pub fn run_match<T: Playable + Display>(
 
 ///run 1000 matches against randomplayer. 500 as first player and 500 as last player.
 #[allow(dead_code)]
-pub fn mass_run_match_with_random_player<T: Playable + Display>(
+pub fn mass_run_match_with_random_player<T: Playable + Display, U: Agentish + Clone>(
     game: &mut T,
-    player: &impl Agentish,
+    player: &U,
     tot_matches: usize,
 ) -> f32 {
+    let game_static = game.get_game_static();
     let mut win_points: f32 = 0.0;
     let players = game.get_game_static().players;
     let random_player = PlayerRandom {
         name: "random".to_string(),
-        name_in_game: players[0].clone(),
+        name_in_game: players[1].clone(),
     };
+
+    let first_role = game_static.players[0].as_str();
+    let mut player_as_first = player.clone();
+    let _ = player_as_first.get_ready(&game_static, first_role);
+
     for _i in 0..(tot_matches / 2) {
         game.reset();
-        let winner = run_match(game, player, &random_player);
+        let winner = run_match(game, &player_as_first, &random_player);
         match winner {
             0 => win_points += 50.0,
             1 => win_points += 100.0,
@@ -103,11 +109,16 @@ pub fn mass_run_match_with_random_player<T: Playable + Display>(
     }
     let random_player = PlayerRandom {
         name: "random".to_string(),
-        name_in_game: players[1].clone(),
+        name_in_game: players[0].clone(),
     };
+
+    let last_role = game_static.players[1].as_str();
+    let mut player_as_last = player.clone();
+    let _ = player_as_last.get_ready(&game_static, last_role);
+
     for _i in 0..(tot_matches / 2) {
         game.reset();
-        let winner = run_match(game, &random_player, player);
+        let winner = run_match(game, &random_player, &player_as_last);
         match winner {
             0 => win_points += 50.0,
             2 => win_points += 100.0,
