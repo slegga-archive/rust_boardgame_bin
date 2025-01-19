@@ -24,6 +24,10 @@ name = "report_score"
 path = "src/report_score.rs"
 
 [[bin]]
+name = "rank_gates"
+path = "src/rank_gates.rs"
+
+[[bin]]
 name = "game_match"
 path = "src/main.rs"
 

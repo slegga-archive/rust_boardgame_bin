@@ -29,7 +29,7 @@ fn main() -> Result<(), anyhow::Error> {
         debug!("La oss spille {}]. Jeg starter ...", game_static.name);
 
         let mut player_a = PlayerNNDiamond::default();
-        player_a.get_ready(&game_static, "Red")?;
+        player_a.get_ready(&game_static, "Red", 3)?;
 
         let name_b = Alphanumeric.sample_string(&mut rand::thread_rng(), 8);
         if old_wins == 0.0 {
@@ -43,7 +43,7 @@ fn main() -> Result<(), anyhow::Error> {
         let mut player_b = player_a.clone(); //PlayerNeuralNetwork::default();
                                              //player_b.game_name = stat.players[1].clone();
                                              //player_b.brain.from_file()?;
-        player_b.get_ready(&game_static, "yellow")?;
+        player_b.get_ready(&game_static, "yellow", 3)?;
         let stat = game.get_game_static();
         // evolve loop
         loop {

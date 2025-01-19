@@ -18,12 +18,15 @@ fn main() -> Result<(), anyhow::Error> {
     let mut game: Game = Game::Connect4(&mut gamestruct);
     let game_static = game.get_game_static();
     let start_player = game_static.players[0].as_str();
+    let mut player_a = PlayerNNDiamondTS {
+        sec_to_move: 1,
+        ..Default::default()
+    };
     loop {
-        let mut player_a = PlayerNNDiamondTS::default();
-        player_a.get_ready(&game_static, start_player)?;
+        player_a.get_ready(&game_static, start_player, 3)?;
 
         println!("Start mass_run");
-        let wins = mass_run_match_with_random_player(&mut game, &player_a, 10);
+        let wins = mass_run_match_with_random_player(&mut game, &player_a, 2);
 
         println!("Vinner % {:.1}", wins);
     }

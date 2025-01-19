@@ -61,7 +61,7 @@ fn main() -> Result<(), anyhow::Error> {
                                                        me_color: "Red".to_string(),
                                                        opponent_color: "Yellow".to_string(),
                                                    };*/
-    player_a.get_ready(&game_static, "Red")?;
+    player_a.get_ready(&game_static, "Red", 3)?;
     warn!("Start");
     loop {
         // let mut player_library = PlayerLibrary::new();
@@ -71,7 +71,7 @@ fn main() -> Result<(), anyhow::Error> {
         debug!("Ny utfordrer: {}", name_b);
 
         let mut player_b = PlayerNNDiamond::default();
-        player_b.get_ready(&game_static, "Yellow")?;
+        player_b.get_ready(&game_static, "Yellow", 3)?;
 
         /*{
             name: name_b,

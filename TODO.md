@@ -11,15 +11,20 @@ Akkurat nå tenker jeg siste forslag er det beste.
 
 TODO
 ====
-[ ] Kjør: "cargo clippy" en gang til i hvert av repoene i denne rekkefølgen: game, player ,bin
-[ ] Sørg for at run_match velger farge ved å angi farge ved get_ready(gamestatic,color  );
-[ ] Sjekk at PlayerDiamond tar hensyn til farge.
-[ ] Report_score må kunne få satt lavere sec_to_think verdi. 15 sec blir altfor lenge.
-[ ] Connect2 test spill for å teste playere
-[ ] Lag PlayerRandomLookahead som sjekker alle moves og ser om et av dem vinner.
-[*] Fjern new metodene. Bruk default istedenfor.
-[ ] Lag et statisikk program for å finne snitt avvik på score, gjennomsnitt evaluering, fordeling av gatetyper, statistikk for armadresser i førstelaget osv.
+* Print ut spillbrett på slutten av treningsøkten. Skjønner ikke at spillet skal være ferdig
+* fjern bruk av playable. Bruker Game istedenfor
+* Lag et statisikk program for å finne snitt avvik på score, gjennomsnitt evaluering, fordeling av gatetyper, statistikk for armadresser i førstelaget osv. [rank_gates.rs]
+* Connect2 test spill for å teste playere
+* Lag PlayerRandomLookahead som sjekker alle moves og ser om et av dem vinner.
 [ ] begrenset random evolve script: utfra statistikken finn dårligste gate og rull den og bakendforliggende gates på nytt (inkl første lag med adresser)
+
+DONE
+====
+* Feiler nå på manglende funksjon i Brainy. Enten lag den, eller vurder å at run_match_return_statistics definisjonen tar et object og ikke trait. Altså lag definisjonen mer spesifikk
+* Fjern new metodene. Bruk default istedenfor.
+[*] Report_score må kunne få satt lavere sec_to_think verdi. 15 sec blir altfor lenge.
+[*] Sørg for at run_match velger farge ved å angi farge ved get_ready(gamestatic,color  );
+[*] Kjør: "cargo clippy" en gang til i hvert av repoene i denne rekkefølgen: game, player ,bin
 [*] rust_boardgame_player/src/player/plgnn_diamond_tree_search.rs: select_leaf:
     Først ta vare på  adressen til beste posisjon/best_move.
     velg best_move sin adresse for å explore. Altså returner den adressen hvis den er på level 9 eller mindre.
