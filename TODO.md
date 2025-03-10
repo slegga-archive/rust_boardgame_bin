@@ -11,7 +11,6 @@ Akkurat nå tenker jeg siste forslag er det beste.
 
 TODO
 ====
-* Print ut spillbrett på slutten av treningsøkten. Skjønner ikke at spillet skal være ferdig
 * fjern bruk av playable. Bruker Game istedenfor
 * Lag et statisikk program for å finne snitt avvik på score, gjennomsnitt evaluering, fordeling av gatetyper, statistikk for armadresser i førstelaget osv. [rank_gates.rs]
 * Connect2 test spill for å teste playere
@@ -20,6 +19,7 @@ TODO
 
 DONE
 ====
+* Print ut spillbrett på slutten av treningsøkten. Skjønner ikke at spillet skal være ferdig
 * Feiler nå på manglende funksjon i Brainy. Enten lag den, eller vurder å at run_match_return_statistics definisjonen tar et object og ikke trait. Altså lag definisjonen mer spesifikk
 * Fjern new metodene. Bruk default istedenfor.
 [*] Report_score må kunne få satt lavere sec_to_think verdi. 15 sec blir altfor lenge.
