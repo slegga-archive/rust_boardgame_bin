@@ -1,0 +1,396 @@
+' Objekt- og filmodell for rust_boardgame_*-repoene
+' Samme modell som objektmodell.md (Mermaid), i PlantUML-format.
+' Render: plantuml objektmodell.puml   (lager ett bilde per @startuml-blokk)
+' Merk: filen inneholder flere @startuml-blokker, ett diagram per avsnitt.
+
+' ================= 1. Avhengigheter mellom crates =================
+
+@startuml
+title 1. Avhengigheter mellom crates
+
+package "rust_boardgame_game (crate: boardgame_game)" as GAME {
+  [lib.rs -> game/] as lib_game
+}
+
+package "rust_boardgame_player (crate: boardgame_player)" as PLAYER {
+  [lib.rs -> player/] as lib_player
+}
+
+package "rust_boardgame_bin (crate: boardgame_binaries)" as BIN {
+  [6 x bin + game_utils] as bins
+}
+
+lib_player --> lib_game : path dependency
+bins --> lib_game : path dependency
+bins --> lib_player : path dependency
+@enduml
+
+' ================= 2. Filer og moduler =================
+
+@startuml
+title 2. Filer og moduler
+
+package "rust_boardgame_game/src" as GAME_SRC {
+  [lib.rs] as g_lib
+  [game/mod.rs] as g_mod
+  [game/connect4.rs] as g_c4
+  [game/nim12.rs] as g_nim
+  g_lib --> g_mod
+  g_mod --> g_c4
+  g_mod --> g_nim
+}
+
+package "rust_boardgame_player/src" as PLAYER_SRC {
+  [lib.rs] as p_lib
+  [player/mod.rs] as p_mod
+  [player/random.rs] as p_rnd
+  [player/human.rs] as p_hum
+  [player/plgnn_diamond.rs] as p_plgnn
+  [player/plgnn_diamond_tree_search.rs] as p_ts
+  [player/brain/mod.rs] as p_bmod
+  [player/brain/lg_diamond.rs] as p_lg
+  p_lib --> p_mod
+  p_mod --> p_rnd
+  p_mod --> p_hum
+  p_mod --> p_plgnn
+  p_mod --> p_ts
+  p_mod --> p_bmod
+  p_bmod --> p_lg
+}
+
+package "rust_boardgame_player/old (ikke kompilert)" as OLD {
+  [monto_carlo_simple.rs] as o_mc
+  [plgnn_trunc.rs] as o_plgnn
+  [brain/lg_trunc.rs] as o_brain
+}
+
+package "rust_boardgame_bin/src" as BIN_SRC {
+  [game_utils/mod.rs] as b_utils
+  [main.rs = game_match] as b_match
+  [plain_diamond_match.rs] as b_plain
+  [train_random.rs] as b_train
+  [train_random_evolve.rs] as b_evol
+  [rank_gates.rs] as b_rank
+  [report_score.rs] as b_score
+  b_match --> b_utils
+  b_plain --> b_utils
+  b_train --> b_utils
+  b_evol --> b_utils
+  b_rank --> b_utils
+  b_score --> b_utils
+}
+
+package "rust_boardgame_bin/data" as DATA {
+  [Connect4-lgnndiamond-6-256.txt] as d_brain
+}
+
+p_mod ..> g_mod : importerer crate
+b_utils ..> g_mod : importerer crate
+b_utils ..> p_mod : importerer crate
+p_lg --> d_brain : from_file
+d_brain --> p_lg : save_to_file
+@enduml
+
+' ================= 3. Objektmodell spill (boardgame_game) =================
+
+@startuml
+title 3. Objektmodell spill (boardgame_game)
+
+interface Playable {
+  +reset()
+  +get_game_static() : GameStatic
+  +get_valid_moves() : Vec<String>
+  +is_terminal() : bool
+  +get_winner() : Option<String>
+  +get_active_player() : String
+  +play(play_move : str)
+  +get_bit_state(perspective : str) : Vec<bool>
+  +get_bit_state_from_bit_state_and_move(perspective, tmp_state, cmove) : Vec<bool>
+  +get_valid_moves_from_bit_state(perspective, tmp_state) : Vec<String>
+  +pretty_print()
+}
+
+class GameStatic {
+  +name : String
+  +players : Vec<String>
+  -state_size : usize
+  +new(name, players, state_size) : GameStatic
+  +get_state_size() : usize
+}
+
+enum Game {
+  Connect4(&mut Connect4)
+  Nim12(&mut Nim12)
+}
+
+enum TerminalState {
+  Me
+  Opponent
+  Draw
+}
+
+class Connect4 {
+  -turn : C4Player
+  -table : u8[7][6]
+  -is_terminated : bool
+  -winner : Option<C4Player>
+  -last_printed_table : u8[7][6]
+}
+
+enum C4Player {
+  Red
+  Yellow
+}
+
+class Nim12 {
+  -turn : bool
+  -tokens_left : u8
+}
+
+class "game::hjelpefunksjoner" as gf {
+  +{static} get_terminal_state_from_bit_state(state) : Option<TerminalState>
+  +{static} get_active_player_from_bit_state(game_static, state) : String
+}
+
+Connect4 ..|> Playable
+Nim12 ..|> Playable
+Game ..|> Playable : dispatch paa variant
+Game o-- Connect4 : holder mut ref
+Game o-- Nim12 : holder mut ref
+Connect4 *-- C4Player : tur og vinner
+Connect4 ..> GameStatic : get_game_static
+Nim12 ..> GameStatic : get_game_static
+Playable ..> GameStatic : get_game_static
+gf ..> TerminalState : returnerer
+gf ..> GameStatic : leser players
+@enduml
+
+' ================= 4. Objektmodell spillere og hjerner (boardgame_player) =================
+
+@startuml
+title 4. Objektmodell spillere og hjerner (boardgame_player)
+
+interface Agentish {
+  +get_move(moves, game_player, game : T) : Option<String>
+  +get_name() : String
+  +get_ready(game_static, me_color, sec_to_move) : Result<LogicGatesError>
+}
+
+interface Brainy {
+  +evaluate_bit_state(game : Game, bit_state) : usize
+  +get_brain() : MyBrain
+}
+
+class PlayerNNDiamond {
+  +name : String
+  +is_loaded : bool
+  +brain : BrainDiamond
+}
+
+class PlayerNNDiamondTS {
+  +name : String
+  +is_loaded : bool
+  +brain : BrainDiamond
+  +sec_to_move : u64
+  +me_color : String
+  +opponent_color : String
+  -has_time_left(move_start) : bool
+  -select_leaf(states) : (usize, Option<TSNode>, bool)
+  -explore(game, states)
+  -backpropagate(states)
+  -add_leaf(states)
+  -get_best_move_and_score(states)
+  +transform_to_mocked_version()
+}
+
+class TSNode {
+  <<internt>>
+  -moves : HashMap<String, usize>
+  -score : usize
+  -best_move : Option<String>
+  -bit_state : Vec<bool>
+  -is_open : bool
+  -level : u8
+  -player : String
+  -score_level : u8
+  -score_address : usize
+}
+
+class PlayerRandom {
+  +name : String
+  +name_in_game : String
+}
+
+class PlayerHuman {
+  +name : String
+}
+
+class BrainDiamond {
+  +game_name : String
+  +filepath : String
+  +layers : [Vec<Cell>; 6]
+  +evaluate_bit_state(bit_state) : usize
+  +get_gate_result_for_level(bit_state, level) : Vec<bool>
+  +do_mutate(max_address)
+  +from_file() : Result<LogicGatesError>
+  +save_to_file() : Result<LogicGatesError>
+}
+
+class Cell {
+  +address_a : usize[256]
+  +address_b : usize[256]
+  +operator : BitOp[256]
+}
+
+enum BitOp {
+  FALSE
+  AND
+  XOR
+  OR
+  NAND
+  TRUE
+  ... 10 til
+}
+
+enum LogicGatesError {
+  InvalidBitOperator
+  Io
+  InvalidChar
+  General
+}
+
+class "brain::hjelpefunksjoner" as bf {
+  +{static} get_default_cell_layer(layer) : Vec<Cell>
+  +{static} generate_random_cell_layer(max_address, layer) : Vec<Cell>
+  +{static} generate_random_brain(game_static) : BrainDiamond
+}
+
+PlayerNNDiamond ..|> Agentish
+PlayerNNDiamondTS ..|> Agentish
+PlayerRandom ..|> Agentish
+PlayerHuman ..|> Agentish
+PlayerNNDiamond ..|> Brainy : MyBrain = BrainDiamond
+PlayerNNDiamondTS ..|> Brainy : MyBrain = BrainDiamond
+
+PlayerNNDiamond *-- BrainDiamond
+PlayerNNDiamondTS *-- BrainDiamond
+PlayerNNDiamondTS o-- TSNode : soketree over stillinger
+BrainDiamond *-- Cell : 6 lag a 256 porter
+Cell *-- BitOp : operator per port
+
+BrainDiamond ..> LogicGatesError : returnerer
+bf ..> Cell : bygger lag
+bf ..> BrainDiamond : returnerer
+Agentish ..> Playable : get_move tar generisk T
+Brainy ..> Game : evaluate_bit_state tar Game
+@enduml
+
+' ================= 5. Objektmodell bin og game_utils (boardgame_binaries) =================
+
+@startuml
+title 5. Objektmodell bin og game_utils (boardgame_binaries)
+
+class Statistics {
+  -states : Vec<Evaluate>
+  +winner : usize
+  -rank_gates : Vec<usize>
+  +dump()
+  +calculate()
+  +dump_rank_gates()
+}
+
+class Evaluate {
+  -move_number : usize
+  -move_string : String
+  -apprentice_score : usize
+  -master_score : usize
+  -gate_result : Vec<bool>
+  -game_bit_state : Vec<bool>
+}
+
+class "game_utils::funksjoner" as gu {
+  +{static} run_match(game : T, player_a, player_b) : u8
+  +{static} mass_run_match_with_random_player(game : T, player, tot_matches) : f32
+  +{static} run_match_return_statistics(game : Game, master, apprentice) : Statistics
+}
+
+Statistics *-- Evaluate : ett per trekk
+gu ..> Statistics : returnerer
+gu ..> Evaluate : fyller ut per trekk
+@enduml
+
+' ================= 5b. Hvilken bin bruker hva =================
+
+@startuml
+title 5b. Hvilken bin bruker hva
+
+[game_utils\nrun_match / mass_run / statistics] as utils
+[Connect4] as c4
+[Game::Connect4] as g_enum
+[PlayerNNDiamond] as nn
+[PlayerNNDiamondTS] as ts
+[PlayerHuman] as hum
+[PlayerRandom] as rnd
+[BrainDiamond\ngenerate_random_brain] as brain
+
+[game_match] --> utils : run_match
+[game_match] --> c4
+[game_match] --> ts
+[game_match] --> hum
+
+[plain_diamond_match] --> utils : run_match
+[plain_diamond_match] --> c4
+[plain_diamond_match] --> nn
+[plain_diamond_match] --> hum
+
+[train_random] --> utils : run_match + mass_run
+[train_random] --> g_enum
+[train_random] --> nn
+[train_random] --> brain
+
+[train_random_evolve] --> utils : run_match + mass_run + mutasjon
+[train_random_evolve] --> g_enum
+[train_random_evolve] --> nn
+[train_random_evolve] --> brain
+
+[rank_gates] --> utils : run_match_return_statistics
+[rank_gates] --> g_enum
+[rank_gates] --> ts
+[rank_gates] --> nn
+
+[report_score] --> utils : mass_run
+[report_score] --> g_enum
+[report_score] --> ts
+
+utils --> rnd : motstander i mass_run
+@enduml
+
+' ================= 6. Kjoreflyt for ett parti (run_match) =================
+
+@startuml
+title 6. Kjoreflyt for ett parti (run_match)
+
+participant "bin (f.eks. game_match)" as B
+participant "game_utils.run_match" as U
+participant "Game / Connect4" as G
+participant "player_a (Agentish)" as A
+participant "player_b (Agentish)" as C
+
+B -> U : run_match(game, player_a, player_b)
+U -> G : get_game_static()
+loop til is_terminal()
+  U -> G : get_active_player()
+  U -> G : get_valid_moves()
+  alt spiller A sin tur
+    U -> A : get_move(valid_moves, player, game)
+    A --> U : cmove
+  else spiller B sin tur
+    U -> C : get_move(valid_moves, player, game)
+    C --> U : cmove
+  end
+  U -> G : play(cmove)
+end
+U -> G : get_winner()
+G --> U : winner
+U --> B : vinner-indeks (u8)
+@enduml

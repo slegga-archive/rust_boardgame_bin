@@ -1,0 +1,499 @@
+# Objekt- og filmodell for rust_boardgame_*-repoene
+# Samme modell som objektmodell.md (Mermaid), i D2-format.
+# Render: d2 objektmodell.d2 objektmodell.svg
+# Merk: D2 har ingen sekvensdiagram-variant, flyten i pkt. 6 er derfor et flytskjema.
+
+# ================= 1. Avhengigheter mellom crates =================
+
+avhengigheter: {
+  label: "1. Avhengigheter mellom crates"
+  direction: right
+
+  game_repo: {
+    label: "rust_boardgame_game\ncrate: boardgame_game"
+    lib: "lib.rs -> game/"
+  }
+  player_repo: {
+    label: "rust_boardgame_player\ncrate: boardgame_player"
+    lib: "lib.rs -> player/"
+  }
+  bin_repo: {
+    label: "rust_boardgame_bin\ncrate: boardgame_binaries"
+    bins: "6 bin + game_utils"
+  }
+
+  player_repo.lib -> game_repo.lib: "path dependency"
+  bin_repo.bins -> game_repo.lib: "path dependency"
+  bin_repo.bins -> player_repo.lib: "path dependency"
+}
+
+# ================= 2. Filer og moduler =================
+
+filer: {
+  label: "2. Filer og moduler"
+  direction: down
+
+  game_src: {
+    label: "rust_boardgame_game/src"
+    g_lib: "lib.rs"
+    g_mod: "game/mod.rs"
+    g_c4: "game/connect4.rs"
+    g_nim: "game/nim12.rs"
+    g_lib -> g_mod
+    g_mod -> g_c4
+    g_mod -> g_nim
+  }
+
+  player_src: {
+    label: "rust_boardgame_player/src"
+    p_lib: "lib.rs"
+    p_mod: "player/mod.rs"
+    p_rnd: "player/random.rs"
+    p_hum: "player/human.rs"
+    p_plgnn: "player/plgnn_diamond.rs"
+    p_ts: "player/plgnn_diamond_tree_search.rs"
+    p_bmod: "player/brain/mod.rs"
+    p_lg: "player/brain/lg_diamond.rs"
+    p_lib -> p_mod
+    p_mod -> p_rnd
+    p_mod -> p_hum
+    p_mod -> p_plgnn
+    p_mod -> p_ts
+    p_mod -> p_bmod
+    p_bmod -> p_lg
+  }
+
+  old: {
+    label: "rust_boardgame_player/old (ikke kompilert)"
+    o_mc: "monto_carlo_simple.rs"
+    o_plgnn: "plgnn_trunc.rs"
+    o_brain: "brain/lg_trunc.rs"
+  }
+
+  bin_src: {
+    label: "rust_boardgame_bin/src"
+    b_utils: "game_utils/mod.rs"
+    b_match: "main.rs = game_match"
+    b_plain: "plain_diamond_match.rs"
+    b_train: "train_random.rs"
+    b_evol: "train_random_evolve.rs"
+    b_rank: "rank_gates.rs"
+    b_score: "report_score.rs"
+    b_match -> b_utils
+    b_plain -> b_utils
+    b_train -> b_utils
+    b_evol -> b_utils
+    b_rank -> b_utils
+    b_score -> b_utils
+  }
+
+  data: {
+    label: "rust_boardgame_bin/data"
+    d_brain: "Connect4-lgnndiamond-6-256.txt"
+  }
+
+  player_src.p_mod -> game_src.g_mod: "importerer crate"
+  bin_src.b_utils -> game_src.g_mod: "importerer crate"
+  bin_src.b_utils -> player_src.p_mod: "importerer crate"
+  player_src.p_lg -> data.d_brain: "from_file"
+  data.d_brain -> player_src.p_lg: "save_to_file"
+}
+
+# ================= 3. Objektmodell spill =================
+
+spill: {
+  label: "3. Objektmodell spill (boardgame_game)"
+  direction: down
+
+  Playable: {
+    shape: class
+    "<<trait>>"
+    reset()
+    get_game_static(): GameStatic
+    get_valid_moves(): Vec of String
+    is_terminal(): bool
+    get_winner(): Option of String
+    get_active_player(): String
+    play(play_move: str)
+    get_bit_state(perspective: str): Vec of bool
+    get_bit_state_from_bit_state_and_move(perspective, tmp_state, cmove): Vec of bool
+    get_valid_moves_from_bit_state(perspective, tmp_state): Vec of String
+    pretty_print()
+  }
+
+  GameStatic: {
+    shape: class
+    name: String
+    players: Vec of String
+    state_size: usize
+    new(name, players, state_size): GameStatic
+    get_state_size(): usize
+  }
+
+  Game: {
+    shape: class
+    "<<enum>>"
+    "Connect4 (mut ref)"
+    "Nim12 (mut ref)"
+  }
+
+  TerminalState: {
+    shape: class
+    "<<enum>>"
+    Me
+    Opponent
+    Draw
+  }
+
+  Connect4: {
+    shape: class
+    turn: C4Player
+    table: "u8[7][6]"
+    is_terminated: bool
+    winner: Option of C4Player
+    last_printed_table: "u8[7][6]"
+  }
+
+  C4Player: {
+    shape: class
+    "<<enum>>"
+    Red
+    Yellow
+  }
+
+  Nim12: {
+    shape: class
+    turn: bool
+    tokens_left: u8
+  }
+
+  game_funksjoner: {
+    shape: class
+    "<<modul-funksjoner>>"
+    get_terminal_state_from_bit_state(state): Option of TerminalState
+    get_active_player_from_bit_state(game_static, state): String
+  }
+
+  Connect4 -> Playable: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  Nim12 -> Playable: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  Game -> Playable: "dispatch paa variant" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+
+  Game -> Connect4: "holder mut ref" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  Game -> Nim12: "holder mut ref" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  Connect4 -> C4Player: "tur og vinner" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+
+  Connect4 -> GameStatic: "get_game_static" {style.stroke-dash: 3}
+  Nim12 -> GameStatic: "get_game_static" {style.stroke-dash: 3}
+  Playable -> GameStatic: "get_game_static" {style.stroke-dash: 3}
+  game_funksjoner -> TerminalState: "returnerer" {style.stroke-dash: 3}
+  game_funksjoner -> GameStatic: "leser players" {style.stroke-dash: 3}
+}
+
+# ================= 4. Objektmodell spillere og hjerner =================
+
+spillere: {
+  label: "4. Objektmodell spillere og hjerner (boardgame_player)"
+  direction: down
+
+  Agentish: {
+    shape: class
+    "<<trait>>"
+    get_move(moves, game_player, game: generisk T): Option of String
+    get_name(): String
+    get_ready(game_static, me_color, sec_to_move): Result of LogicGatesError
+  }
+
+  Brainy: {
+    shape: class
+    "<<trait>>"
+    evaluate_bit_state(game: Game, bit_state): usize
+    get_brain(): MyBrain
+  }
+
+  PlayerNNDiamond: {
+    shape: class
+    name: String
+    is_loaded: bool
+    brain: BrainDiamond
+  }
+
+  PlayerNNDiamondTS: {
+    shape: class
+    name: String
+    is_loaded: bool
+    brain: BrainDiamond
+    sec_to_move: u64
+    me_color: String
+    opponent_color: String
+    has_time_left(move_start): bool
+    select_leaf(states): usize og Option of TSNode
+    explore(game, states)
+    backpropagate(states)
+    add_leaf(states)
+    get_best_move_and_score(states)
+    transform_to_mocked_version()
+  }
+
+  TSNode: {
+    shape: class
+    "<<internt>>"
+    moves: HashMap of String og usize
+    score: usize
+    best_move: Option of String
+    bit_state: Vec of bool
+    is_open: bool
+    level: u8
+    player: String
+    score_level: u8
+    score_address: usize
+  }
+
+  PlayerRandom: {
+    shape: class
+    name: String
+    name_in_game: String
+  }
+
+  PlayerHuman: {
+    shape: class
+    name: String
+  }
+
+  BrainDiamond: {
+    shape: class
+    game_name: String
+    filepath: String
+    "layers": Vec of Cell x 6
+    evaluate_bit_state(bit_state): usize
+    get_gate_result_for_level(bit_state, level): Vec of bool
+    do_mutate(max_address)
+    from_file(): Result of LogicGatesError
+    save_to_file(): Result of LogicGatesError
+  }
+
+  Cell: {
+    shape: class
+    address_a: "usize[256]"
+    address_b: "usize[256]"
+    operator: "BitOp[256]"
+  }
+
+  BitOp: {
+    shape: class
+    "<<enum, 16 logikkporter>>"
+    FALSE
+    AND
+    XOR
+    OR
+    NAND
+    TRUE
+    "... 10 til"
+  }
+
+  LogicGatesError: {
+    shape: class
+    "<<enum, thiserror>>"
+    InvalidBitOperator
+    Io
+    InvalidChar
+    General
+  }
+
+  brain_funksjoner: {
+    shape: class
+    "<<modul-funksjoner>>"
+    get_default_cell_layer(layer): Vec of Cell
+    generate_random_cell_layer(max_address, layer): Vec of Cell
+    generate_random_brain(game_static): BrainDiamond
+  }
+
+  PlayerNNDiamond -> Agentish: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  PlayerNNDiamondTS -> Agentish: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  PlayerRandom -> Agentish: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  PlayerHuman -> Agentish: "impl" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  PlayerNNDiamond -> Brainy: "impl, MyBrain = BrainDiamond" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+  PlayerNNDiamondTS -> Brainy: "impl, MyBrain = BrainDiamond" {
+    style.stroke-dash: 3
+    target-arrowhead: {shape: triangle}
+  }
+
+  PlayerNNDiamond -> BrainDiamond: "eier" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  PlayerNNDiamondTS -> BrainDiamond: "eier" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  PlayerNNDiamondTS -> TSNode: "soketree over stillinger" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  BrainDiamond -> Cell: "6 lag a 256 porter" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  Cell -> BitOp: "operator per port" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+
+  BrainDiamond -> LogicGatesError: "returnerer" {style.stroke-dash: 3}
+  BrainDiamond -> Agentish: "brukes av" {style.stroke-dash: 3}
+  brain_funksjoner -> Cell: "bygger lag" {style.stroke-dash: 3}
+  brain_funksjoner -> BrainDiamond: "returnerer" {style.stroke-dash: 3}
+  Agentish -> Playable: "get_move tar generisk T" {style.stroke-dash: 3}
+  Brainy -> Game: "evaluate_bit_state tar Game" {style.stroke-dash: 3}
+}
+
+# ================= 5. Objektmodell bin og game_utils =================
+
+bin_objekter: {
+  label: "5. Objektmodell bin og game_utils (boardgame_binaries)"
+  direction: down
+
+  Statistics: {
+    shape: class
+    states: Vec of Evaluate
+    winner: usize
+    rank_gates: Vec of usize
+    dump()
+    calculate()
+    dump_rank_gates()
+  }
+
+  Evaluate: {
+    shape: class
+    move_number: usize
+    move_string: String
+    apprentice_score: usize
+    master_score: usize
+    gate_result: Vec of bool
+    game_bit_state: Vec of bool
+  }
+
+  game_utils: {
+    shape: class
+    "<<funksjoner>>"
+    "run_match(game, player_a, player_b): u8"
+    "mass_run_match_with_random_player(game, player, tot_matches): f32"
+    "run_match_return_statistics(game, master, apprentice): Statistics"
+  }
+
+  Statistics -> Evaluate: "ett per trekk" {
+    source-arrowhead: {shape: diamond; style.filled: true}
+  }
+  game_utils -> Statistics: "returnerer" {style.stroke-dash: 3}
+  game_utils -> Evaluate: "fyller ut per trekk" {style.stroke-dash: 3}
+}
+
+# ================= 5b. Hvilken bin bruker hva =================
+
+bin_bruk: {
+  label: "5b. Hvilken bin bruker hva"
+  direction: right
+
+  utils: "game_utils"
+
+  c4: "Connect4"
+  g_enum: "Game::Connect4"
+  nn: "PlayerNNDiamond"
+  ts: "PlayerNNDiamondTS"
+  hum: "PlayerHuman"
+  rnd: "PlayerRandom"
+  brain: "BrainDiamond + generate_random_brain"
+
+  game_match: "game_match"
+  game_match -> utils
+  game_match -> c4
+  game_match -> ts
+  game_match -> hum
+
+  plain: "plain_diamond_match"
+  plain -> utils
+  plain -> c4
+  plain -> nn
+  plain -> hum
+
+  train: "train_random"
+  train -> utils
+  train -> g_enum
+  train -> nn
+  train -> brain
+
+  evolve: "train_random_evolve"
+  evolve -> utils
+  evolve -> g_enum
+  evolve -> nn
+  evolve -> brain
+
+  rank: "rank_gates"
+  rank -> utils
+  rank -> g_enum
+  rank -> ts
+  rank -> nn
+
+  score: "report_score"
+  score -> utils
+  score -> g_enum
+  score -> ts
+
+  utils -> rnd: "motstander i mass_run"
+}
+
+# ================= 6. Kjoreflyt run_match =================
+
+flyt: {
+  label: "6. Kjoreflyt for ett parti (run_match)"
+  direction: down
+
+  start: "bin kaller run_match"
+  stat: "get_game_static()"
+  loop: "er spillet terminalt?"
+  tur: "get_active_player()"
+  moves: "get_valid_moves()"
+  valg: "hvilken spiller sin tur?"
+  get_a: "player_a.get_move(...)"
+  get_b: "player_b.get_move(...)"
+  play: "game.play(cmove)"
+  winner: "get_winner()"
+  retur: "returner vinner-indeks u8"
+
+  start -> stat
+  stat -> loop
+  loop -> tur: "nei"
+  tur -> moves
+  moves -> valg
+  valg -> get_a: "A"
+  valg -> get_b: "B"
+  get_a -> play
+  get_b -> play
+  play -> loop
+  loop -> winner: "ja"
+  winner -> retur
+}
