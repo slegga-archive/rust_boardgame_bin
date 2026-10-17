@@ -3,38 +3,18 @@ name = "boardgame_binaries"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 anyhow = "1.0.95"
 env_logger = "0.11.6"
-inline_colorization = "0.1.6"
 log = "0.4.22"
 rand = "0.8.5"
-time = "0.3.37"
-boardgame_game = { version = "0.1.0", path = "../rust_boardgame_game/" }
-boardgame_player = { version = "0.1.0", path = "../rust_boardgame_player/" }
-
-[[bin]]
-name = "train_random"
-path = "src/train_random.rs"
-
-[[bin]]
-name = "report_score"
-path = "src/report_score.rs"
-
-[[bin]]
-name = "rank_gates"
-path = "src/rank_gates.rs"
+boardgame_game = { path = "../rust_boardgame_game" }
+boardgame_player = { path = "../rust_boardgame_player" }
 
 [[bin]]
 name = "game_match"
 path = "src/main.rs"
 
 [[bin]]
-name = "train_random_evolve"
-path = "src/train_random_evolve.rs"
-
-[[bin]]
-name = "plain_diamond_match"
-path = "src/plain_diamond_match.rs"
+name = "cli"
+path = "src/cli.rs"

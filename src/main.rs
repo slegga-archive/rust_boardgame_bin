@@ -1,31 +1,19 @@
-//! This crate is handling GGP for rust.
-//! To use this crate
-//! use crate::player::plgnn_diamond_tree_search::*;
-//! use crate::player::brain::brain::*;
-//! use crate::plgnn_diamond_tree_search::PlayerNNDiamondTS;
+//! Main entry: human vs AI Connect4 match using PlayerNNDiamondTS.
 
-mod game_utils;
-use crate::game_utils::*;
+use boardgame_binaries::game_utils::*;
 use boardgame_game::game::connect4::Connect4;
 use boardgame_game::game::*;
 use boardgame_player::player::human::PlayerHuman;
 use boardgame_player::player::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 use boardgame_player::player::Agentish;
 
-//use boardgame_player::player::plgnn_diamond_tree_search;
-//use boardgame_player::player::player::PlayerNNDiamondTS;
-
 use log::debug;
 use std::collections::HashMap;
 
 /// To run a match RUST_LOG=debug cargo run --bin game_match
-/// This file is master of linking player and game.
 fn main() -> Result<(), anyhow::Error> {
     println!("Started");
     env_logger::init();
-    //let mut gamestruct = crate::game::connect4::connect4::Connect4::default();
-    //let game: Game = Game::Connect4(&mut gamestruct); // Combined::InnerOne(InnerOne);
-    // let player_library = PlayerLibrary::new();
     let mut game = Connect4::default();
     println!(
         "La oss spille {}. Jeg starter ...",
@@ -48,7 +36,7 @@ fn main() -> Result<(), anyhow::Error> {
         1 => game_static.players[0].clone(),
         2 => game_static.players[1].clone(),
         0 => "DRAW".to_string(),
-        x => panic!("Unexpected player number {}", x), // This should never happen
+        x => panic!("Unexpected player number {}", x),
     };
     let player_name = match player_types.get(winner.as_str()) {
         Some(x) => x,
@@ -56,7 +44,6 @@ fn main() -> Result<(), anyhow::Error> {
     };
 
     game.pretty_print();
-    //println!("{}",game.clone());
     println!(
         "Game ended. The winner is {}! The winners name is {}",
         winner, player_name

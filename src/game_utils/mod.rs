@@ -1,4 +1,4 @@
-use boardgame_game::game::Game;
+use boardgame_game::game::connect4::Connect4;
 use boardgame_game::game::Playable;
 use log::debug;
 /// This to not have to mark players with game tags. Players should
@@ -231,7 +231,7 @@ pub fn mass_run_match_with_random_player<T: Playable + Display, U: Agentish + Cl
 }
 
 pub fn run_match_return_statistics<U: Agentish + Brainy + Clone>(
-    game: &mut Game,
+    game: &mut Connect4,
     master_player: &U,
     apprentice_player: &PlayerNNDiamond,
 ) -> Statistics {

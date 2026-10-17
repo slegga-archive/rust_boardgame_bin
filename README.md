@@ -8,15 +8,20 @@ rust_boardgame_bin -  binaries
 rust_boardgame_player - player
 rust_boardgame_game - game
 
+De bygges som ett workspace fra meta-repoets rot.
+
 Disse Rust repo er for å forske ut logisk port nettverk på GGP spill.
 
 
 
 HVORDAN STARTE
 ==============
-RUST_LOG=warn cargo run --bin report_score
-RUST_LOG=warn cargo run --bin train_random
-RUST_LOG=debug RUST_BACKTRACE=1 cargo run --bin game_match
+Kjør fra meta-repoets rot (workspace):
+RUST_LOG=warn cargo run -p boardgame_binaries --bin cli -- report
+RUST_LOG=warn cargo run -p boardgame_binaries --bin cli -- train
+RUST_LOG=debug RUST_BACKTRACE=1 cargo run -p boardgame_binaries --bin game_match
+
+cli-subkommandoer: train | evolve | rank | report | match
 
 1-2 NIM
 =======
