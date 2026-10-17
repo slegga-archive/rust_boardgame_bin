@@ -8,6 +8,9 @@
 //!     cli report  - report the loaded TS brain vs random        (replaces report_score)
 //!     cli match   - play a single match AI vs Human             (replaces plain_diamond_match)
 
+//!     cli match   - play a single match AI vs Human             (replaces plain_diamond_match)
+//!     cli bench [n] [sec] - benchmark PlayerNNDiamondTS vs PlayerNNDiamond on Connect4
+
 use boardgame_binaries::game_utils::*;
 use boardgame_game::game::connect4::Connect4;
 use boardgame_game::game::*;
@@ -19,22 +22,133 @@ use boardgame_player::player::plgnn_diamond_tree_search::PlayerNNDiamondTS;
 use boardgame_player::player::Agentish;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
+use std::cell::Cell;
+use std::fmt::Display;
+use std::time::Instant;
 
 fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
-    let arg = std::env::args().nth(1);
-    let cmd = arg.as_deref().unwrap_or("help");
-    match cmd {
+    let mut args = std::env::args().skip(1);
+    let cmd = args.next().unwrap_or_else(|| "help".to_string());
+    let rest: Vec<String> = args.collect();
+    match cmd.as_str() {
         "train" => train_random()?,
         "evolve" => train_random_evolve()?,
         "rank" => rank_gates()?,
         "report" => report_score()?,
         "match" => plain_diamond_match()?,
+        "bench" => bench(
+            rest.first().and_then(|s| s.parse().ok()).unwrap_or(20),
+            rest.get(1).and_then(|s| s.parse().ok()).unwrap_or(1),
+        )?,
         _ => {
-            eprintln!("usage: cli {{train|evolve|rank|report|match}}");
+            eprintln!("usage: cli {{train|evolve|rank|report|match|bench}} [args]");
             std::process::exit(2);
         }
     }
+    Ok(())
+}
+
+/// Wraps an agent and accumulates time spent in get_move. Shared-ref friendly
+/// via Cell since run_match takes `&impl Agentish`.
+struct Timed<'a, T: Agentish> {
+    inner: &'a T,
+    secs: Cell<f32>,
+    moves: Cell<u64>,
+}
+
+impl<T: Agentish> Agentish for Timed<'_, T> {
+    fn get_move<T2: Playable + Display>(
+        &self,
+        moves: &[String],
+        game_player: &str,
+        game: &T2,
+    ) -> Option<String> {
+        let start = Instant::now();
+        let r = self.inner.get_move(moves, game_player, game);
+        self.secs.set(self.secs.get() + start.elapsed().as_secs_f32());
+        self.moves.set(self.moves.get() + 1);
+        r
+    }
+    fn get_name(&self) -> String {
+        self.inner.get_name()
+    }
+    fn get_ready(
+        &mut self,
+        _game_static: &GameStatic,
+        _me_color: &str,
+        _sec_to_move: u64,
+    ) -> Result<(), LogicGatesError> {
+        Ok(())
+    }
+}
+
+/// Bench: PlayerNNDiamondTS (PUCT + TT + tree reuse) vs PlayerNNDiamond on
+/// Connect4. n/2 games each color. Prints win % and time per move
+/// (arena node count is not exposed by the player crate, so skipped).
+fn bench(n_parties: usize, sec_to_move: u64) -> Result<(), anyhow::Error> {
+    let mut gamestruct = Connect4::default();
+    let game_static = gamestruct.get_game_static();
+    let start_player = game_static.players[0].as_str();
+
+    let mut ts = PlayerNNDiamondTS {
+        sec_to_move,
+        ..Default::default()
+    };
+    ts.get_ready(&game_static, start_player, sec_to_move)?;
+    let mut plain = PlayerNNDiamond::default();
+    plain.get_ready(&game_static, start_player, 3)?;
+
+    let mut ts_score = 0.0f32; // win=1, draw=0.5
+    let mut ts_secs = 0.0f32;
+    let mut ts_moves = 0u64;
+    let mut plain_secs = 0.0f32;
+    let mut plain_moves = 0u64;
+
+    for i in 0..n_parties {
+        let ts_timed = Timed {
+            inner: &ts,
+            secs: Cell::new(0.0),
+            moves: Cell::new(0),
+        };
+        let plain_timed = Timed {
+            inner: &plain,
+            secs: Cell::new(0.0),
+            moves: Cell::new(0),
+        };
+        gamestruct.reset();
+        // alternate colors: even i -> TS first (winner 1), odd i -> TS second (winner 2)
+        let winner = if i % 2 == 0 {
+            run_match(&mut gamestruct, &ts_timed, &plain_timed)
+        } else {
+            run_match(&mut gamestruct, &plain_timed, &ts_timed)
+        };
+        ts_score += match (i % 2 == 0, winner) {
+            (_, 0) => 0.5,
+            (true, 1) | (false, 2) => 1.0,
+            _ => 0.0,
+        };
+        ts_secs += ts_timed.secs.get();
+        ts_moves += ts_timed.moves.get();
+        plain_secs += plain_timed.secs.get();
+        plain_moves += plain_timed.moves.get();
+        info!("game {i}: winner={winner}");
+    }
+
+    let ts_ms = if ts_moves > 0 { ts_secs * 1000.0 / ts_moves as f32 } else { 0.0 };
+    let plain_ms = if plain_moves > 0 { plain_secs * 1000.0 / plain_moves as f32 } else { 0.0 };
+    println!(
+        "BENCH n={} sec_to_move={}s | TS win%: {:.1} (score {:.1}/{}) | TS: {:.1} ms/move over {} moves | Plain: {:.1} ms/move over {} moves",
+        n_parties,
+        sec_to_move,
+        100.0 * ts_score / n_parties as f32,
+        ts_score,
+        n_parties,
+        ts_ms,
+        ts_moves,
+        plain_ms,
+        plain_moves
+    );
     Ok(())
 }
 

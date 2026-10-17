@@ -23,7 +23,7 @@ fn main() -> Result<(), anyhow::Error> {
     let game_static = game.get_game_static();
     let player_types = HashMap::from([("Red", "PlayerMC"), ("Yellow", "PlayerHuman")]);
     let mut player_a = PlayerNNDiamondTS::default();
-    player_a.get_ready(&game_static, "Red", 8)?;
+    player_a.get_ready(&game_static, "Red", 10)?;
 
     let player_b: PlayerHuman = PlayerHuman {
         name: "Human".to_string(),
