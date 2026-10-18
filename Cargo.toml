@@ -5,11 +5,13 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.95"
+boardgame_game = { path = "../rust_boardgame_game" }
+boardgame_player = { path = "../rust_boardgame_player" }
+crossterm = "0.29.0"
 env_logger = "0.11.6"
 log = "0.4.22"
 rand = "0.8.5"
-boardgame_game = { path = "../rust_boardgame_game" }
-boardgame_player = { path = "../rust_boardgame_player" }
+ratatui = "0.29.0"
 
 [[bin]]
 name = "game_match"
@@ -18,3 +20,7 @@ path = "src/main.rs"
 [[bin]]
 name = "cli"
 path = "src/cli.rs"
+
+[[bin]]
+name = "connect4-tui"
+path = "src/connect4_tui.rs"
