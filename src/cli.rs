@@ -188,6 +188,7 @@ fn train_random() -> Result<(), anyhow::Error> {
 
         let mut player_b = PlayerNNDiamond::default();
         player_b.get_ready(&game_static, "Yellow", 3)?;
+        player_b.brain.do_mutate(&game_static.get_state_size());
 
         gamestruct.reset();
         let winner = run_match(&mut gamestruct, &player_a, &player_b);
@@ -202,7 +203,7 @@ fn train_random() -> Result<(), anyhow::Error> {
                             info!("Wins to low {wins} < {old_wins}");
                             continue;
                         }
-                        old_wins = mass_run_match_with_random_player(&mut gamestruct, &player_b, 100);
+                        old_wins = wins;
                         if let Err(e) = player_b.brain.save_to_file() {
                             panic!("Error saving to file {}", e);
                         }
@@ -250,6 +251,7 @@ fn train_random_evolve() -> Result<(), anyhow::Error> {
         // evolve loop
         loop {
             let state_size = stat.get_state_size();
+            let backup = player_b.brain.clone();
             player_b.brain.do_mutate(&state_size);
             gamestruct.reset();
 
@@ -268,6 +270,7 @@ fn train_random_evolve() -> Result<(), anyhow::Error> {
                 }
             };
             if score_new < 50 {
+                player_b.brain = backup;
                 break; // new player did not played equal or win against old
             }
 
@@ -285,6 +288,7 @@ fn train_random_evolve() -> Result<(), anyhow::Error> {
                 }
             };
             if score_new <= 100 {
+                player_b.brain = backup;
                 break; // new player did not played equal or win against old
             }
 
@@ -294,6 +298,7 @@ fn train_random_evolve() -> Result<(), anyhow::Error> {
                     "Lav score  og ,{:.1}. Kongen er {:.1}",
                     new_old_wins, old_wins
                 );
+                player_b.brain = backup;
                 continue; // close but no sigar. evolve
             }
             old_wins = new_old_wins;
@@ -342,7 +347,7 @@ fn report_score() -> Result<(), anyhow::Error> {
     loop {
         player_a.get_ready(&game_static, start_player, 3)?;
         println!("Start mass_run");
-        let wins = mass_run_match_with_random_player(&mut gamestruct, &player_a, 2);
+        let wins = mass_run_match_with_random_player(&mut gamestruct, &player_a, 100);
         println!("Vinner % {:.1}", wins);
     }
 }

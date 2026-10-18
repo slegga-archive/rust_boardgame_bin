@@ -64,7 +64,7 @@ impl Statistics {
             else if score_diff < 0 { // diff is negative
                 for i in 0 .. CELL_SIZE {
                     if state.gate_result[i] {
-                        self.rank_gates[i as usize] -= score_diff as usize;
+                        self.rank_gates[i as usize] += (-score_diff) as usize;
                     }
                 }
 
