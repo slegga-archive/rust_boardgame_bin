@@ -20,7 +20,3 @@ path = "src/main.rs"
 [[bin]]
 name = "cli"
 path = "src/cli.rs"
-
-[[bin]]
-name = "connect4-tui"
-path = "src/connect4_tui.rs"

@@ -10,6 +10,11 @@
 
 //!     cli match   - play a single match AI vs Human             (replaces plain_diamond_match)
 //!     cli bench [n] [sec] - benchmark PlayerNNDiamondTS vs PlayerNNDiamond on Connect4
+//!     cli tui [GAME] [SEC] [--ai-first] - play in the terminal vs Diamond Tree Search AI
+//!         (GAME ∈ {connect4}, default connect4; SEC ∈ {1,3,5,10} sec per AI move,
+//!         default = player's default if in set, else 3; without --ai-first you are
+//!         Red and start, AI is Yellow; --ai-first makes AI Red and start;
+//!         GAME/SEC/--ai-first preselect the setup screen)
 
 use boardgame_binaries::game_utils::*;
 use boardgame_game::game::connect4::Connect4;
@@ -23,6 +28,7 @@ use boardgame_player::player::Agentish;
 use log::{debug, info, warn};
 use rand::distributions::{Alphanumeric, DistString};
 use std::cell::Cell;
+use std::cell::RefCell;
 use std::fmt::Display;
 use std::time::Instant;
 
@@ -41,12 +47,75 @@ fn main() -> Result<(), anyhow::Error> {
             rest.first().and_then(|s| s.parse().ok()).unwrap_or(20),
             rest.get(1).and_then(|s| s.parse().ok()).unwrap_or(1),
         )?,
+        "tui" => tui_diamond(&rest)?,
         _ => {
-            eprintln!("usage: cli {{train|evolve|rank|report|match|bench}} [args]");
+            eprintln!("usage: cli {{train|evolve|rank|report|match|bench|tui}} [args]");
             std::process::exit(2);
         }
     }
     Ok(())
+}
+
+/// TUI: human plays in the terminal vs Diamond Tree Search AI.
+/// GAME/SEC/--ai-first preselect the setup screen (starter + think-time),
+/// which can still be changed interactively before the first move.
+fn tui_diamond(args: &[String]) -> Result<(), anyhow::Error> {
+    use boardgame_game::connect4_tui::{AiOpponent, GameKind, SETUP_SECS};
+
+    let mut kind = GameKind::Connect4;
+    let player_default = PlayerNNDiamondTS::default().sec_to_move;
+    let mut sec = if SETUP_SECS.contains(&player_default) {
+        player_default
+    } else {
+        3
+    };
+    let mut ai_first = false;
+    for a in args {
+        if a == "--ai-first" {
+            ai_first = true;
+        } else if GameKind::ALL.iter().any(|g| g.title().eq_ignore_ascii_case(a)) {
+            // ponytail: single game so any known name means Connect4;
+            // map name -> variant explicitly when GameKind grows.
+            kind = GameKind::Connect4;
+        } else if let Ok(n) = a.parse::<u64>() {
+            if SETUP_SECS.contains(&n) {
+                sec = n;
+            } else {
+                eprintln!("usage: cli tui [GAME] [SEC] [--ai-first] (SEC ∈ {{1,3,5,10}})");
+                std::process::exit(2);
+            }
+        } else {
+            let games: Vec<String> = GameKind::ALL
+                .iter()
+                .map(|g| g.title().to_lowercase())
+                .collect();
+            eprintln!(
+                "unknown game '{a}'; usage: cli tui [{}] [SEC] [--ai-first]",
+                games.join("|")
+            );
+            std::process::exit(2);
+        }
+    }
+    let ai_color = if ai_first { "Red" } else { "Yellow" };
+    let game_static = Connect4::default().get_game_static();
+    let player = RefCell::new(PlayerNNDiamondTS::default());
+    // Fail fast on brain errors before entering the TUI (raw mode);
+    // apply_setup re-runs get_ready at setup-confirm (cheap: already loaded).
+    player.borrow_mut().get_ready(&game_static, ai_color, sec)?;
+    let ai_name = player.borrow().get_name();
+    let ai = AiOpponent {
+        color: ai_color,
+        name: ai_name.as_str(),
+        get_move: &|moves, p, game| player.borrow().get_move(moves, p, game),
+        apply_setup: &|color, s| {
+            player
+                .borrow_mut()
+                .get_ready(&game_static, color, s)
+                .expect("AI brain ready");
+        },
+        initial_sec: sec,
+    };
+    kind.run(Some(ai))
 }
 
 /// Wraps an agent and accumulates time spent in get_move. Shared-ref friendly
